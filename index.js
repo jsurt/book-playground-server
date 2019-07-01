@@ -153,10 +153,36 @@ const oclcRequest = (req, res, next) => {
         .catch(err => console.log(err));
 }
 
+const refinedOCLCRequest = (req, res, next) => {
+    console.log("Request to OCLC made");
+    fetch(OCLC_ENDPOINT_ISBN)
+        .then(response => response.text())
+        .then(xml => {
+            // console.log(xml, "XML");
+            parseString(xml, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500);
+                    next();
+                }
+                console.dir(result, "Parsed XML");
+                res.locals.body = {
+                    title: result.classify.work[0].$.title,
+                    author: result.classify.authors[0].author[0]._,
+                    ddc: result.classify.recommendations[0].ddc[0].mostPopular[0].$.sfa
+
+                }
+                next();
+            });
+        })
+        .catch(err => console.log(err));
+}
+
 app.use("/decode_barcode", decodeBarcode);
 app.use("/search_isbn", searchISBN);
 app.use("/isbn_db", quickISBNdbReq);
 app.use("/oclc", oclcRequest);
+app.use("/oclc_refined", refinedOCLCRequest);
 
 app.get("/", (req, res) => {
     console.log("Request made to root");
@@ -179,6 +205,11 @@ app.get("/isbn_db", (req, res) => {
 
 app.get("/oclc", (req, res) => {
     console.log("Request made to OCLC");
+    res.send(res.locals.body);
+})
+
+app.get("/oclc_refined", (req, res) => {
+    console.log(res.locals.body);
     res.send(res.locals.body);
 })
 

@@ -28,6 +28,9 @@ let barcode_2 = "071121957153";
 let barcode_3 = "9781503219700";
 
 /* ARE A BOOK'S BARCODE AND ISBN NUMBER THE SAME? IF SO, SCAN BARCODE AND THEN USE GOOGLE BOOKS API */
+// ^^
+// ||
+// Useless now, I think           
 
 //ISBN's
 let isbn_db_1 = "1591413281";

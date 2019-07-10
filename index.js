@@ -6,9 +6,11 @@ const app = express();
 const cors = require("cors");
 const fetch = require("node-fetch");
 const https = require("https");
+const morgan = require("morgan");
 const parseString = require("xml2js").parseString;
 
 app.use(cors());
+app.use(morgan("combined"));
 
 // API keys
 const { BARCODE_API_KEY, GOOGLE_API_KEY, ISBNdb_API_KEY } = process.env;
@@ -116,10 +118,16 @@ const headers = {
 };
 
 const ISBNdb_ENDPOINT_BOOKS = `https://api2.isbndb.com/book/${isbn_db_9}&results=details`;
-const ISBNdb_ENDPOINT_SEARCH = `https://api2.isbndb.com/search/books?isbn13=${isbn_db_10}&results=details`;
+// const ISBNdb_ENDPOINT_SEARCH = `https://api2.isbndb.com/search/books?isbn13=${
+//   req.params.isbn
+// }&results=details`;
 
 // Quick test fetch
 const quickISBNdbReq = (req, res, next) => {
+  console.log(req.path);
+  let ISBNdb_ENDPOINT_SEARCH = `https://api2.isbndb.com/search/books?isbn13=${
+    req.params.isbn
+  }`;
   fetch(ISBNdb_ENDPOINT_SEARCH, { headers })
     .then(data => data.json())
     .then(json => {
@@ -135,30 +143,35 @@ const oclc_num_1 = "57358293"; // Some Harry Potter book
 const oclc_num_2 = ""; //
 
 const OCLC_ENDPOINT_OCLC_NUMBER = `http://classify.oclc.org/classify2/Classify?oclc=${oclc_num_1}&summary=true`;
-const OCLC_ENDPOINT_ISBN = `http://classify.oclc.org/classify2/Classify?isbn=${isbn_db_7}&summary=true`;
+// const OCLC_ENDPOINT_ISBN = `http://classify.oclc.org/classify2/Classify?isbn=${isbn_db_7}&summary=true`;
 
 const oclcRequest = (req, res, next) => {
   console.log("Request to OCLC made");
+  const OCLC_ENDPOINT_ISBN = `http://classify.oclc.org/classify2/Classify?isbn=${
+    req.params.isbn
+  }&summary=true`;
   fetch(OCLC_ENDPOINT_ISBN)
     .then(response => response.text())
     .then(xml => {
-      // console.log(xml, "XML");
-      parseString(xml, (err, result) => {
-        if (err) {
-          console.error(err);
-          res.status(500);
-          next();
-        }
-        // console.dir(result, "Parsed XML");
-        res.locals.body = result;
-        next();
-      });
+      console.log(xml, "XML");
+      // parseString(xml, (err, result) => {
+      //   if (err) {
+      //     console.error(err);
+      //     res.status(500);
+      //     next();
+      //   }
+      // console.dir(result, "Parsed XML");
+      res.locals.myData = xml;
+      next();
     })
     .catch(err => console.log(err));
 };
 
 const refinedOCLCRequest = (req, res, next) => {
   console.log("Request to OCLC made");
+  const OCLC_ENDPOINT_ISBN = `http://classify.oclc.org/classify2/Classify?isbn=${
+    req.params.isbn
+  }&summary=true`;
   fetch(OCLC_ENDPOINT_ISBN)
     .then(response => response.text())
     .then(xml => {
@@ -183,9 +196,9 @@ const refinedOCLCRequest = (req, res, next) => {
 
 app.use("/decode_barcode", decodeBarcode);
 app.use("/search_isbn", searchISBN);
-app.use("/isbn_db", quickISBNdbReq);
-app.use("/oclc", oclcRequest);
-app.use("/oclc_refined", refinedOCLCRequest);
+app.use("/isbn_db/:isbn", quickISBNdbReq);
+app.use("/oclc/:isbn", oclcRequest);
+app.use("/oclc_refined/:isbn", refinedOCLCRequest);
 
 app.get("/", (req, res) => {
   console.log("Request made to root");
@@ -202,13 +215,13 @@ app.get("/search_isbn", (req, res) => {
   res.status(200).send(res.locals.body);
 });
 
-app.get("/isbn_db", (req, res) => {
+app.get("/isbn_db/:isbn", (req, res) => {
   res.status(200).send(res.locals.body);
 });
 
-app.get("/oclc", (req, res) => {
+app.get("/oclc/:isbn", (req, res) => {
   console.log("Request made to OCLC");
-  res.send(res.locals.body);
+  res.send(res.locals.myData);
 });
 
 app.get("/oclc_refined", (req, res) => {

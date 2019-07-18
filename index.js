@@ -47,21 +47,25 @@ const BARCODE_ENDPOINT = `https://api.barcodelookup.com/v2/products?barcode=${ba
 const GOOGLE_BOOKS_ENDPOINT_1 = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn_db_7}&key=${GOOGLE_API_KEY}&printType=books`;
 const GOOGLE_BOOKS_ENDPOINT_2 = `https://www.googleapis.com/books/v1/volumes?q=intitle:${title}&key=${GOOGLE_API_KEY}&printType=books`;
 
-const decodeBarcode = (req, res, next) => {
+const googleSearchByTitle = (req, res, next) => {
   let initialData = "";
   https
-    .get(BARCODE_ENDPOINT, response => {
-      response.on("data", data => {
-        console.log("Receiving data", data);
-        initialData += data;
-      });
-      response.on("end", data => {
-        console.log(data, "data in end");
-        res.locals.body = initialData;
-        console.log(res.locals.body.products);
-        next();
-      });
-    })
+    .get(
+      `https://www.googleapis.com/books/v1/volumes?q=intitle:${
+        req.params.title
+      }&key=${GOOGLE_API_KEY}&printType=books`,
+      response => {
+        response.on("data", data => {
+          console.log("Receiving data", data);
+          initialData += data;
+        });
+        response.on("end", data => {
+          console.log(data, "data in end");
+          res.locals.body = initialData;
+          next();
+        });
+      }
+    )
     .end();
 };
 
@@ -141,6 +145,7 @@ const oclc_num_2 = ""; //
 
 const OCLC_ENDPOINT_OCLC_NUMBER = `http://classify.oclc.org/classify2/Classify?oclc=${oclc_num_1}&summary=true`;
 // const OCLC_ENDPOINT_ISBN = `http://classify.oclc.org/classify2/Classify?isbn=${isbn_db_7}&summary=true`;
+const OCLC_ENDPOINT_TITLE = `http://classify.oclc.org/classify2/Classify?author=Weinberger%2C%20David&title=${title}&summary=true`;
 
 const oclcRequest = (req, res, next) => {
   console.log("Request to OCLC made");
@@ -164,38 +169,38 @@ const oclcRequest = (req, res, next) => {
     .catch(err => console.log(err));
 };
 
-const refinedOCLCRequest = (req, res, next) => {
+const OCLCRequestByTitle = (req, res, next) => {
   console.log("Request to OCLC made");
-  const OCLC_ENDPOINT_ISBN = `http://classify.oclc.org/classify2/Classify?isbn=${
-    req.params.isbn
+  const OCLC_ENDPOINT_ISBN = `http://classify.oclc.org/classify2/Classify?author=Weinberger%2C%20David&title=${
+    req.params.title
   }&summary=true`;
   fetch(OCLC_ENDPOINT_ISBN)
     .then(response => response.text())
     .then(xml => {
       // console.log(xml, "XML");
-      parseString(xml, (err, result) => {
-        if (err) {
-          console.error(err);
-          res.status(500);
-          next();
-        }
-        console.dir(result, "Parsed XML");
-        res.locals.body = {
-          title: result.classify.work[0].$.title,
-          author: result.classify.authors[0].author[0]._,
-          ddc: result.classify.recommendations[0].ddc[0].mostPopular[0].$.sfa
-        };
-        next();
-      });
+      // parseString(xml, (err, result) => {
+      //   if (err) {
+      //     console.error(err);
+      //     res.status(500);
+      //     next();
+      //   }
+      //   console.dir(result, "Parsed XML");
+      //   res.locals.body = {
+      //     title: result.classify.work[0].$.title,
+      //     author: result.classify.authors[0].author[0]._,
+      //     ddc: result.classify.recommendations[0].ddc[0].mostPopular[0].$.sfa
+      //   };
+      res.locals.body = xml;
+      next();
     })
     .catch(err => console.log(err));
 };
 
-app.use("/decode_barcode", decodeBarcode);
+// app.use("/decode_barcode", decodeBarcode);
 app.use("/search_isbn", searchISBN);
 app.use("/isbn_db/:isbn", quickISBNdbReq);
 app.use("/oclc/:isbn", oclcRequest);
-app.use("/oclc_refined/:isbn", refinedOCLCRequest);
+app.use("/title/:title", googleSearchByTitle);
 
 app.get("/", (req, res) => {
   console.log("Request made to root");
@@ -221,7 +226,7 @@ app.get("/oclc/:isbn", (req, res) => {
   res.send(res.locals.myData);
 });
 
-app.get("/oclc_refined", (req, res) => {
+app.get("/title/:title", (req, res) => {
   console.log(res.locals.body);
   res.send(res.locals.body);
 });

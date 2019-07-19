@@ -12,6 +12,10 @@ const parseString = require("xml2js").parseString;
 app.use(cors());
 app.use(morgan("combined"));
 
+const { router: googleBooksRouter } = require("./google-books");
+
+app.use("/google-books", googleBooksRouter);
+
 // API keys
 const { BARCODE_API_KEY, GOOGLE_API_KEY, ISBNdb_API_KEY } = process.env;
 
@@ -46,28 +50,6 @@ let isbn_db_10 = "9780590353427"; // Harry Potter
 const BARCODE_ENDPOINT = `https://api.barcodelookup.com/v2/products?barcode=${barcode_1}&category=Media>Books&key=${BARCODE_API_KEY}`;
 const GOOGLE_BOOKS_ENDPOINT_1 = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn_db_7}&key=${GOOGLE_API_KEY}&printType=books`;
 const GOOGLE_BOOKS_ENDPOINT_2 = `https://www.googleapis.com/books/v1/volumes?q=intitle:${title}&key=${GOOGLE_API_KEY}&printType=books`;
-
-const googleSearchByTitle = (req, res, next) => {
-  let initialData = "";
-  https
-    .get(
-      `https://www.googleapis.com/books/v1/volumes?q=intitle:${
-        req.params.title
-      }&key=${GOOGLE_API_KEY}&printType=books`,
-      response => {
-        response.on("data", data => {
-          console.log("Receiving data", data);
-          initialData += data;
-        });
-        response.on("end", data => {
-          console.log(data, "data in end");
-          res.locals.body = initialData;
-          next();
-        });
-      }
-    )
-    .end();
-};
 
 const searchISBN = (req, res, next) => {
   let initialData = "";
@@ -200,7 +182,6 @@ const OCLCRequestByTitle = (req, res, next) => {
 app.use("/search_isbn", searchISBN);
 app.use("/isbn_db/:isbn", quickISBNdbReq);
 app.use("/oclc/:isbn", oclcRequest);
-app.use("/title/:title", googleSearchByTitle);
 
 app.get("/", (req, res) => {
   console.log("Request made to root");

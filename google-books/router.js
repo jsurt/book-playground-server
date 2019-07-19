@@ -45,7 +45,7 @@ const refineResponse = (req, res, next) => {
   next();
 };
 
-router.get("/:title", googleSearchByTitle, refineResponse, (req, res) => {
+router.get("/title/:title", googleSearchByTitle, refineResponse, (req, res) => {
   res.send(res.locals.bookObj);
 });
 

@@ -1,7 +1,6 @@
 require("dotenv");
 const express = require("express");
 const https = require("https");
-const url = require("url");
 
 const router = express.Router();
 

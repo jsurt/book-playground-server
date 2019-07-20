@@ -7,6 +7,7 @@ const cors = require("cors");
 const fetch = require("node-fetch");
 const https = require("https");
 const morgan = require("morgan");
+const mysql = require("mysql");
 const parseString = require("xml2js").parseString;
 
 app.use(cors());
@@ -17,25 +18,7 @@ const { router: googleBooksRouter } = require("./google-books");
 app.use("/google-books", googleBooksRouter);
 
 // API keys
-const { BARCODE_API_KEY, GOOGLE_API_KEY, ISBNdb_API_KEY } = process.env;
-
-/* Test values */
-// For Google Books API
-let title_1 = "diary of a madman and other stories";
-let title_2 = "penguin classics arthurian romances";
-
-// decodeBarcode give this variable its value
-let title;
-
-// For Barcode Lookup API
-let barcode_1 = "9781591413288";
-let barcode_2 = "071121957153";
-let barcode_3 = "9781503219700";
-
-/* ARE A BOOK'S BARCODE AND ISBN NUMBER THE SAME? IF SO, SCAN BARCODE AND THEN USE GOOGLE BOOKS API */
-// ^^
-// ||
-// Useless now, I think           
+const { BARCODE_API_KEY, GOOGLE_API_KEY, ISBNdb_API_KEY } = process.env;       
 
 //ISBN's
 let isbn_db_1 = "1591413281";
@@ -48,29 +31,6 @@ let isbn_db_7 = "9780416720600"; // Semiotics of Theater
 let isbn_db_8 = "9780140440584"; // Ovid Metamorphoses
 let isbn_db_9 = "9781118531648"; // Jon Duckett Javascript book
 let isbn_db_10 = "9780590353427"; // Harry Potter
-
-// API request endpoints
-const BARCODE_ENDPOINT = `https://api.barcodelookup.com/v2/products?barcode=${barcode_1}&category=Media>Books&key=${BARCODE_API_KEY}`;
-const GOOGLE_BOOKS_ENDPOINT_1 = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn_db_7}&key=${GOOGLE_API_KEY}&printType=books`;
-const GOOGLE_BOOKS_ENDPOINT_2 = `https://www.googleapis.com/books/v1/volumes?q=intitle:${title}&key=${GOOGLE_API_KEY}&printType=books`;
-
-const searchISBN = (req, res, next) => {
-  let initialData = "";
-  https
-    .get(GOOGLE_BOOKS_ENDPOINT_1, response => {
-      response.on("data", data => {
-        console.log(data);
-        initialData += data;
-      });
-      response.on("end", data => {
-        res.locals.body = initialData;
-        next();
-      });
-    })
-    .end();
-};
-
-// &dewey_decimal=1
 
 const ISBNdbReq = (req, res, next) => {
   const options = {
@@ -162,19 +122,6 @@ const OCLCRequestByTitle = (req, res, next) => {
   fetch(OCLC_ENDPOINT_ISBN)
     .then(response => response.text())
     .then(xml => {
-      // console.log(xml, "XML");
-      // parseString(xml, (err, result) => {
-      //   if (err) {
-      //     console.error(err);
-      //     res.status(500);
-      //     next();
-      //   }
-      //   console.dir(result, "Parsed XML");
-      //   res.locals.body = {
-      //     title: result.classify.work[0].$.title,
-      //     author: result.classify.authors[0].author[0]._,
-      //     ddc: result.classify.recommendations[0].ddc[0].mostPopular[0].$.sfa
-      //   };
       res.locals.body = xml;
       next();
     })

@@ -1,6 +1,7 @@
 require("dotenv");
 const express = require("express");
 const https = require("https");
+const url = require("url");
 
 const router = express.Router();
 
@@ -27,6 +28,20 @@ const googleSearchByTitle = (req, res, next) => {
     .end();
 };
 
+const googleSearchByISBN = (req, res, next) => {
+  let initialData = "";
+  https.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${req.params.isbn}&key=${GOOGLE_API_KEY}&printType=books`, response => {
+    response.on("data", data => {
+      initialData += data;
+    });
+    response.on("end", () => {
+      res.locals.body = initialData;
+      next();
+    })
+  })
+  .end();
+}
+
 const refineResponse = (req, res, next) => {
   const response = res.locals.body;
   const json = JSON.parse(response);
@@ -46,7 +61,11 @@ const refineResponse = (req, res, next) => {
 };
 
 router.get("/title/:title", googleSearchByTitle, refineResponse, (req, res) => {
-  res.send(res.locals.bookObj);
+  res.send(res.locals.bookObj).status(200);
+});
+
+router.get("/isbn/:isbn", googleSearchByISBN, refineResponse, (req, res) => {
+  res.send(res.locals.bookObj).status(200);
 });
 
 module.exports = { router };

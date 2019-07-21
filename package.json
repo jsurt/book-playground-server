@@ -15,10 +15,9 @@
     "express": "^4.17.1",
     "https": "^1.0.0",
     "morgan": "^1.9.1",
+    "mysql": "github:mysqljs/mysql",
     "nodemon": "^1.19.1",
     "xml2js": "^0.4.19"
   },
-  "devDependencies": {
-    "node-fetch": "^2.6.0"
-  }
+  "devDependencies": {}
 }

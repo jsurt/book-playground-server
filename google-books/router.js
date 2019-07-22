@@ -1,3 +1,5 @@
+"use strict";
+
 require("dotenv");
 const express = require("express");
 const https = require("https");

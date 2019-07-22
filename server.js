@@ -16,8 +16,7 @@ const { router: googleBooksRouter } = require("./google-books");
 const { router: ISBNdbRouter } = require("./isbn-db");
 
 app.use("/google-books", googleBooksRouter);
-app.use("/isbn-db", ISBNdbRouter);      
-
+app.use("/isbn-db", ISBNdbRouter);
 
 app.get("/", (req, res) => {
   console.log("Request made to root");
@@ -26,10 +25,10 @@ app.get("/", (req, res) => {
 
 const connection = mysql.createConnection({
   host: "localhost",
-  user: "jsurtees",
+  user: "root",
   password: "password2017",
   database: "huey_test"
-})
+});
 
 connection.connect();
 

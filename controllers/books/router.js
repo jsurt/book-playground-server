@@ -18,7 +18,7 @@ router.post("/", (req, res) => {
   let { title, authors, thumbnail, ddc, favorite } = req.body;
   let date = new Date();
   let sql =
-    "INSERT INTO books(title, authors, thumbnail, ddc, favorite, register_date) VALUES (?, ?, ?, ?, ?, NOW())";
+    "INSERT INTO books(title, authors, thumbnail, ddc, favorite, date_added) VALUES (?, ?, ?, ?, ?, NOW())";
   let values = [title, authors, thumbnail, ddc, favorite];
   database.query(sql, values, (error, results, fields) => {
     if (error) throw error;

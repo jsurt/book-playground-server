@@ -15,15 +15,24 @@ router.get("/", (req, res) => {
 
 router.post("/", (req, res) => {
   //   const data = JSON.stringify(req.body);
-  let { title, authors, thumbnail, ddc } = req.body;
+  let { title, authors, thumbnail, ddc, favorite } = req.body;
   let date = new Date();
   let sql =
-    "INSERT INTO books(title, authors, thumbnail, ddc, register_date) VALUES (?, ?, ?, ?, NOW())";
-  let values = [title, authors, thumbnail, ddc];
+    "INSERT INTO books(title, authors, thumbnail, ddc, favorite, register_date) VALUES (?, ?, ?, ?, ?, NOW())";
+  let values = [title, authors, thumbnail, ddc, favorite];
   database.query(sql, values, (error, results, fields) => {
     if (error) throw error;
     res.send(results).status(201);
   });
+});
+
+router.delete("/:id", (req, res) => {
+    let sql = "DELETE FROM books WHERE id = ?";
+    let id = req.params.id;
+    database.query(sql, id, (error, results, fields) => {
+        if (error) throw error;
+        res.send(results).status(201);
+    });
 });
 
 module.exports = router;

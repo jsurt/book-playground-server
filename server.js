@@ -10,6 +10,8 @@ const https = require("https");
 const morgan = require("morgan");
 const mysqlx = require("@mysql/xdevapi");
 const parseString = require("xml2js").parseString;
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -18,10 +20,12 @@ app.use(morgan("combined"));
 const { router: bookRouter } = require("./controllers/books");
 const { router: googleBooksRouter } = require("./controllers/google-books");
 const { router: ISBNdbRouter } = require("./controllers/isbn-db");
+const { router: userRouter } = require("./controllers/users");
 
 app.use("/books", bookRouter);
 app.use("/google-books", googleBooksRouter);
 app.use("/isbn-db", ISBNdbRouter);
+app.use("/users", userRouter);
 
 app.get("/", (req, res) => {
   console.log("Request made to root");

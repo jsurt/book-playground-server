@@ -33,16 +33,19 @@ const checkEmailAvailability = (req, res, next) => {
         database.query(sql, values, (error, results, fields) => {
             if (error) {
                 console.log(error);
-                console.log("Email available?");
-                next();
+                next(error);
             }
-            if (results == []) {
+            if (results.length > 0) {
+                console.log("Email is unavailable");
+                throw new Error("Email is unavailable");
+            }
+            if (results.length < 1) {
                 console.log("Email is available");
             }
             next();
         })
     } catch(err) {
-        console.log(err);
+        next(err);
     }
 }
 
@@ -51,17 +54,12 @@ const insertUser = (req, res, next) => {
     const { hash } = res.locals;
     let sql = "INSERT INTO users (first_name, last_name, email, password, register_date) VALUES (?, ?, ?, ?, NOW())";
     let values = [first_name, last_name, email, hash];
-    try {
         database.query(sql, values, (error, results, fields) => {
             if (error) {
-                console.log(error);
-                return res.status(500).send("Server error");
+                next(error);
             }
             next();
         })
-    } catch(err) {
-        res.status(400).send(err);
-    }
 }
 
 const findUserInDatabase = (req, res, next) => {

@@ -16,17 +16,23 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  let requiredFields = ["title", "authors", "thumbnail", "is_favorite"];
+  let requiredFields = [
+    "title",
+    "authors",
+    "thumbnail",
+    "is_favorite",
+    "user_id"
+  ];
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
       throw "Required field is missing";
     }
   });
   try {
-    let { title, authors, thumbnail, ddc, is_favorite } = req.body;
+    let { title, authors, thumbnail, ddc, is_favorite, user_id } = req.body;
     let sql =
-      "INSERT INTO books(title, authors, thumbnail, ddc, is_favorite, date_added) VALUES (?, ?, ?, ?, ?, NOW())";
-    let values = [title, authors, thumbnail, ddc, is_favorite];
+      "INSERT INTO books(title, authors, thumbnail, ddc, is_favorite, user_id, date_added) VALUES (?, ?, ?, ?, ?, ?, NOW())";
+    let values = [title, authors, thumbnail, ddc, is_favorite, user_id];
     database.query(sql, values, (error, results, fields) => {
       if (error) {
         return res.status(500).send("Server error");

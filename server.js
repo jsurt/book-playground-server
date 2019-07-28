@@ -32,11 +32,11 @@ app.get("/", (req, res) => {
   res.status(200).send("Root");
 });
 
-app.listen(8080, () => {
-  console.log("App is listening on port 8080 \nCORS enbabled");
+app.listen(8000, () => {
+  console.log("App is listening on port 8000 \nCORS enbabled");
 });
 
-process.on("SIGINT", () => {
-  console.log("Bye bye!");
-  process.exit();
-});
+// process.on("SIGINT", () => {
+//   console.log("Bye bye!");
+//   process.exit();
+// });

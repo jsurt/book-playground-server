@@ -15,7 +15,6 @@ const hashPassword = (req, res, next) => {
 const compareHash = (req, res, next) => {
     const { password } = req.body;
     const { hash } = res.locals;
-    try {
         bcrypt.compare(password, hash, (err, result) => {
             if (!result) {
                 throw new Error("Incorrect password");
@@ -24,10 +23,6 @@ const compareHash = (req, res, next) => {
                 next();
             }
         })
-    } catch(err) {
-        console.log(err);
-        res.send("Incorrect password").status(404);
-    }
 }
 
 module.exports = { hashPassword, compareHash };

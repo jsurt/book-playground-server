@@ -4,7 +4,11 @@ const express = require("express");
 
 const router = express.Router();
 
-const { checkEmailAvailability, insertNewUser, getUserEmail } = require("../../middleware/queries/users");
+const {
+  checkEmailAvailability,
+  insertNewUser,
+  getUserEmail
+} = require("../../middleware/queries/users");
 const { hashPassword, compareHash } = require("../../middleware/hashing");
 
 router.post(
@@ -19,7 +23,7 @@ router.post(
 );
 
 router.post("/login", getUserEmail, compareHash, (req, res) => {
-  res.send("Loggin in user");
+  res.status(201).send("Logging user in");
 });
 
 module.exports = router;

@@ -26,6 +26,10 @@ app.use("/books", bookRouter);
 app.use("/google-books", googleBooksRouter);
 app.use("/isbn-db", ISBNdbRouter);
 app.use("/users", userRouter);
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send(err.stack);
+});
 
 app.get("/", (req, res) => {
   console.log("Request made to root");

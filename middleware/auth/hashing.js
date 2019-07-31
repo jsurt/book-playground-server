@@ -5,7 +5,10 @@ const hashPassword = (req, res, next) => {
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(password, salt, (err, hash) => {
       console.log("hashing");
-      console.log(err);
+      if (err) {
+        const error = new Error(err);
+        return next(error);
+      }
       res.locals.hash = hash;
       next();
     });
@@ -18,11 +21,9 @@ const compareHash = (req, res, next) => {
   bcrypt.compare(password, hash, (err, result) => {
     if (!result) {
       const error = new Error("Incorrect password");
-      next(error);
-    } else {
-      console.log("Password is correct");
-      next();
+      return next(error);
     }
+    next();
   });
 };
 

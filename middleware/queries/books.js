@@ -8,7 +8,7 @@ const getBooks = (req, res, next) => {
   database.query(sql, id, (error, results, fields) => {
     if (error) {
       const error = new Error(error);
-      next(error);
+      return next(error);
     }
     res.locals.books = results;
     next();
@@ -26,7 +26,7 @@ const addBook = (req, res, next) => {
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
       const error = new Error(`"${field}" field missing in request body`);
-      next(error);
+      return next(error);
     }
   });
   let { title, authors, thumbnail, ddc, is_favorite, user_id } = req.body;
@@ -36,7 +36,7 @@ const addBook = (req, res, next) => {
   database.query(sql, values, (error, results, fields) => {
     if (error) {
       const error = new Error(error);
-      next(error);
+      return next(error);
     }
     console.log(results);
     next();
@@ -46,7 +46,7 @@ const addBook = (req, res, next) => {
 const updateIsReadField = (req, res, next) => {
   if (!("is_read" in req.body)) {
     const error = new Error("Only update to 'is_read' field is accepted");
-    next(error);
+    return next(error);
   }
   let id = req.params.id;
   let { is_read } = req.body;
@@ -56,7 +56,7 @@ const updateIsReadField = (req, res, next) => {
     if (error) {
       console.error(error);
       const err = new Error(error);
-      next(err);
+      return next(err);
     }
     console.log(results);
     next();
@@ -66,7 +66,7 @@ const updateIsReadField = (req, res, next) => {
 const updateIsFavoriteField = (req, res, next) => {
   if (!("is_favorite" in req.body)) {
     const error = new Error("Only update to 'is_favorite' field is accepted");
-    next(error);
+    return next(error);
   }
   let id = req.params.id;
   let { is_favorite } = req.body;
@@ -75,7 +75,7 @@ const updateIsFavoriteField = (req, res, next) => {
   database.query(sql, values, (error, results, fields) => {
     if (error) {
       const erorr = new Error(error);
-      next(error);
+      return next(error);
     }
     console.log(results);
     next();
@@ -88,7 +88,7 @@ const deleteBook = (req, res, next) => {
   database.query(sql, id, (error, results, fields) => {
     if (error) {
       const error = new Error(error);
-      next(error);
+      return next(error);
     }
     console.log("Book has been removed from user's library");
     next();

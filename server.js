@@ -11,16 +11,20 @@ const morgan = require("morgan");
 const mysqlx = require("@mysql/xdevapi");
 const parseString = require("xml2js").parseString;
 const passport = require("passport");
-const LocalStrategy = require("passport-local");
+const { Strategy: LocalStrategy } = require("passport-local");
 
 app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("combined"));
+app.use(passport.initialize());
 
+const { localStrategy } = require("./auth/strategies/local");
 const { router: bookRouter } = require("./controllers/books");
 const { router: googleBooksRouter } = require("./controllers/google-books");
 const { router: ISBNdbRouter } = require("./controllers/isbn-db");
 const { router: userRouter } = require("./controllers/users");
+
+passport.use(localStrategy);
 
 app.use("/books", bookRouter);
 app.use("/google-books", googleBooksRouter);

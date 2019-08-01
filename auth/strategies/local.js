@@ -17,21 +17,21 @@ const localStrategy = new LocalStrategy(
     database.query(sql, email, (error, results, fields) => {
       if (error) {
         console.error("Email not found");
-        return done(error);
+        return done(null, false, error);
       }
       if (results.length < 1) {
         const error = new Error("Email not found");
-        return done(error);
+        return done(null, false, error);
       }
       const user = results[0];
       const hash = user.password;
       bcrypt.compare(password, hash, (err, result) => {
         if (!result) {
           const error = new Error("Incorrect password");
-          return done(error);
+          return done(null, false, error);
         }
         console.log(results[0], "test");
-        return done(results[0]);
+        return done(null, results[0]);
       });
     });
   }

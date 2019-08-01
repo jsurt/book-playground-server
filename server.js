@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const database = require("./database");
 const https = require("https");
+const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
 const mysqlx = require("@mysql/xdevapi");
 const parseString = require("xml2js").parseString;
@@ -17,6 +18,12 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("combined"));
 app.use(passport.initialize());
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 const { localStrategy } = require("./auth/strategies/local");
 const { router: bookRouter } = require("./controllers/books");
